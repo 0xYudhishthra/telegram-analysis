@@ -17,10 +17,7 @@ class DateTimeEncoder(json.JSONEncoder):
         if isinstance(o, datetime):
             return o.isoformat()
 
-        if isinstance(o, bytes):
-            return list(o)
-
-        return json.JSONEncoder.default(self, o)
+        return list(o) if isinstance(o, bytes) else json.JSONEncoder.default(self, o)
 
 
 # Reading Configs
@@ -82,8 +79,7 @@ async def main(phone):
         if not history.messages:
             break
         messages = history.messages
-        for message in messages:
-            all_messages.append(message.to_dict())
+        all_messages.extend(message.to_dict() for message in messages)
         offset_id = messages[len(messages) - 1].id
         total_messages = len(all_messages)
         if total_count_limit != 0 and total_messages >= total_count_limit:
